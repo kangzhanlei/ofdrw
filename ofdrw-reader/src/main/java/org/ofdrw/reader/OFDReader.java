@@ -1,6 +1,5 @@
 package org.ofdrw.reader;
 
-import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.dom4j.DocumentException;
 import org.ofdrw.core.annotation.Annotations;
@@ -19,14 +18,10 @@ import org.ofdrw.core.signatures.Signatures;
 import org.ofdrw.pkg.container.DocDir;
 import org.ofdrw.pkg.container.OFDDir;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * OFD解析器
@@ -80,7 +75,24 @@ public class OFDReader implements Closeable {
         workDir = Files.createTempDirectory("ofd-tmp-");
         // 解压文档，到临时的工作目录
         ZipUtil.unZipFiles(ofdFile.toFile(), workDir.toAbsolutePath().toString() + File.separator);
-//        new ZipFile(ofdFile.toFile()).extractAll(workDir.toAbsolutePath().toString());
+        ofdDir = new OFDDir(workDir);
+        // 创建资源定位器
+        rl = new ResourceLocator(ofdDir);
+    }
+
+    /**
+     * 构造一个 OFDReader
+     *
+     * @param stream OFD文件输入流
+     * @throws IOException OFD文件操作IO异常
+     */
+    public OFDReader(InputStream stream) throws IOException {
+        if (stream == null) {
+            throw new IllegalArgumentException("文件输入流(stream)不正确");
+        }
+        workDir = Files.createTempDirectory("ofd-tmp-");
+        // 解压文档，到临时的工作目录
+        ZipUtil.unZipFiles(stream, workDir.toAbsolutePath().toString() + File.separator);
         ofdDir = new OFDDir(workDir);
         // 创建资源定位器
         rl = new ResourceLocator(ofdDir);
@@ -264,7 +276,7 @@ public class OFDReader implements Closeable {
      */
     public ST_Box getPageSize(Page page) {
         CT_PageArea pageArea = page.getArea();
-        if (pageArea == null) {
+        if (pageArea == null || pageArea.getPhysicalBox() == null) {
             // 如果页面没有定义页面区域，则使用文件 CommonData中的定义
             Document document;
             try {
@@ -275,7 +287,6 @@ public class OFDReader implements Closeable {
             CT_CommonData commonData = document.getCommonData();
             pageArea = commonData.getPageArea();
         }
-
         return pageArea.getPhysicalBox();
     }
 
@@ -405,7 +416,6 @@ public class OFDReader implements Closeable {
         }
         return null;
     }
-
 
 
     /**

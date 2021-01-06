@@ -1,6 +1,8 @@
 package org.ofdrw.core.graph.pathObj;
 
 import org.dom4j.Element;
+import org.ofdrw.core.basicType.ST_RefID;
+import org.ofdrw.core.pageDescription.color.color.CT_AxialShd;
 import org.ofdrw.core.pageDescription.color.color.CT_Color;
 
 /**
@@ -19,4 +21,5 @@ public class FillColor extends CT_Color {
     public FillColor() {
         super("FillColor");
     }
+
 }

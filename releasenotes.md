@@ -2,6 +2,56 @@
 
 ## 进展
 
+## Version 1.7.2 2020-12-8 20:11:15
+
+Alias: CellsAtWork
+
+新增
+
+- 关键字定位：增加后缀匹配解决跨TextObject定位。
+
+修复
+
+- 调整了full模块的打包方式为jar并且增加了占位class，修复了一些情况下无法打包和镜像参数无法同步的问题。
+
+## Version 1.7.1 2020-12-1 19:16:34
+
+Alias: HYOUKA
+
+修复
+
+- OFDReader中zip没有关闭，导致文件占用的问题。
+- SealOFDReader 向后兼容了Path的构造参数。
+
+## Version 1.7.0 2020-11-20 19:48:21
+
+Alias: Fate/Zero
+
+新增
+
+- OFD转换模块`ofdrw-converter`发布，支持[OFD转换PDF](ofdrw-converter/src/test/java/HelloWorld.java)
+- RW中主要API均增加流参数支持，如：OFDReader、OFDDoc、OFDSigner、ConvertHelper。
+
+修复
+
+- OFDDoc使用Path对象生成文档是的IAE。
+- 修改了OFD转换PDF的渐变处理
+
+## Version 1.6.10 2020-11-18 11:05:50
+
+Alias: MobileSuitGundamSEED
+
+新增
+
+- 增加了通过类型获取CT_Color实例的方法。
+- 关键字搜索支持通知检索多个关键字。
+- 转换模块支持了PageBlock的嵌套。
+
+修复
+
+- Canvas上下文中增加了默认字体属性的解决了没有设置字体导致的NPE。
+- 解决了转换部分错误。
+
 ## Version 1.6.9 2020-11-12 19:22:21
 
 Alias: 	MobuSaikoHyaku

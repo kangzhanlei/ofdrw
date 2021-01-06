@@ -13,6 +13,9 @@ import org.ofdrw.pkg.container.OFDDir;
 import org.ofdrw.pkg.container.ResDir;
 import org.ofdrw.pkg.container.VirtualContainer;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,7 +79,7 @@ class OFDReaderTest {
     @Test
     void oFDReader() throws IOException {
         assertThrows(IllegalArgumentException.class, () -> {
-            OFDReader reader = new OFDReader(null);
+            OFDReader reader = new OFDReader(Paths.get("target/null.ofd"));
         });
         OFDReader reader = new OFDReader(src);
         Path workDir = reader.getWorkDir();
@@ -100,7 +103,7 @@ class OFDReaderTest {
             OFDDir ofdDir = reader.getOFDDir();
             OFD ofd = ofdDir.getOfd();
             String docID = ofd.getDocBody().getDocInfo().getDocID();
-            assertEquals("6b9c7c83cff048e7b427ef0567f3e065", docID);
+            assertEquals("220c5913ebfe4f6e8070dabd3647f157", docID);
         }
     }
 
@@ -112,6 +115,26 @@ class OFDReaderTest {
             Page page = reader.getPage(1);
             assertEquals(1, page.getContent().getLayers().size());
         }
+    }
+
+
+    @Test
+    public void testReader() throws Exception{
+        Path src = Paths.get("src/test/resources/helloworld.ofd");
+        byte[] ofdSrc = Files.readAllBytes(src);
+        Path fileTemp = Files.createTempDirectory("ofd_tmp");
+
+        String tempDirBuilder = fileTemp.toFile().getAbsolutePath() +
+                File.separator +
+                fileTemp.toFile().getName() +
+                "_src.OFD";
+        Path srcPath = Paths.get(tempDirBuilder);
+        Files.write(srcPath, ofdSrc);
+        OFDReader reader = new OFDReader(srcPath);
+        //reader.close();
+
+        Files.delete(srcPath);
+        Files.delete(fileTemp);
     }
 
 
@@ -149,6 +172,4 @@ class OFDReaderTest {
             assertEquals(docInfo.getAuthor(), "权观宇");
         }
     }
-
-
 }

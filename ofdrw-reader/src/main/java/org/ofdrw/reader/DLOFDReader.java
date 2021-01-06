@@ -31,9 +31,7 @@ import org.ofdrw.reader.model.OFDDocumentVo;
 import org.ofdrw.reader.model.OfdPageVo;
 import org.ofdrw.reader.model.StampAnnotVo;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -52,6 +50,18 @@ public class DLOFDReader extends OFDReader {
 
     public DLOFDReader(Path ofdFile) throws IOException {
         super(ofdFile);
+        initReader();
+    }
+
+    public DLOFDReader(InputStream stream) throws IOException {
+        super(stream);
+        initReader();
+    }
+
+    /**
+     * 初始化reader
+     */
+    private void initReader() {
         try {
             this.getResourceLocator().save();
             DocBody docBody = this.getOFDDir().getOfd().getDocBody();
@@ -306,14 +316,12 @@ public class DLOFDReader extends OFDReader {
                     if (type != null) {
                         stampAnnotVo.setType(type.toLowerCase());
                         if (type.toLowerCase().equals("ofd")) {
-                            String sealFilePath = getOFDDir().getFile(srcPath).getParent().toString() + "/seal.ofd";
-                            FileUtils.writeByteArrayToFile(new File(sealFilePath), sealBytes);
-                            Path src = Paths.get(sealFilePath);
-                            SealOFDReader sealReader = new SealOFDReader(src);
+                            SealOFDReader sealReader = new SealOFDReader(new ByteArrayInputStream(sealBytes));
                             stampAnnotVo.setOfdPageVoList(sealReader.getOFDPageVO());
                             stampAnnotVo.setCtDrawParamList(sealReader.getPublicResDrawParam());
                             stampAnnotVo.setCtFontList(sealReader.getPublicResFonts());
                             stampAnnotVoList.add(stampAnnotVo);
+                            sealReader.close();
                         } else if (type.toLowerCase().equals("png")) {
                             stampAnnotVo.setImgByte(sealBytes);
                             stampAnnotVoList.add(stampAnnotVo);
@@ -346,6 +354,9 @@ public class DLOFDReader extends OFDReader {
                 ST_Loc antLoc = page.getFileLoc();
                 if (antLoc.toString().contains(docRoot.parent())) {
                     antLoc = ST_Loc.getInstance(antLoc.toString().replace(docRoot.parent() + "/", "").replaceFirst("/", ""));
+                }
+                if (!antLoc.toString().contains(document.getAnnotations().parent())) {
+                    antLoc = ST_Loc.getInstance(document.getAnnotations().parent() + "/" + antLoc);
                 }
                 try {
                     PageAnnot pageAnnot = this.getResourceLocator().get(antLoc, PageAnnot::new);
